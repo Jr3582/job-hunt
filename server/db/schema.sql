@@ -9,3 +9,5 @@ CREATE TABLE jobs (
     applied_date DATE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CHECK (status IN ('saved', 'applied', 'interview_pending', 'interview_completed', 'offer', 'rejected')),
