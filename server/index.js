@@ -15,8 +15,12 @@ const app = express();
 const PORT = 3001;
 
 app.get('/health', async(req, res) => {
-    const result = await pool.query('SELECT NOW()');
-    res.json({ status: 'ok', time: result.rows[0].now})
+    try {
+        const result = await pool.query('SELECT NOW()');
+        res.json({ status: 'ok', time: result.rows[0].now})
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
 });
 
 app.get('/hello', (req, res) => {
