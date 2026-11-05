@@ -14,6 +14,15 @@ const pool = new Pool({
 const app = express();
 const PORT = 3001;
 
+app.get('/jobs', async(req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM jobs ORDER BY created_at DESC');
+        res.json({ status: 'ok', jobs: result.rows})
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message })
+    }
+})
+
 app.get('/health', async(req, res) => {
     try {
         const result = await pool.query('SELECT NOW()');
