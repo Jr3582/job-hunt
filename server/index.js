@@ -12,16 +12,35 @@ const pool = new Pool({
 
 
 const app = express();
+app.use(express.json());
 const PORT = 3001;
 
 app.get('/jobs', async(req, res) => {
     try {
         const result = await pool.query('SELECT * FROM jobs ORDER BY created_at DESC');
-        res.json({ status: 'ok', jobs: result.rows})
+        res.json({ status: 'ok', jobs: result.rows});
     } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message })
+        res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
+app.post('/jobs', async(req, res) => {
+    try{
+        const body = req.body;
+        const result = await pool.query(
+            "INSERT INTO jobs (company, job_title, status, description, url, location, applied_date) VALUES ($1, $2, COALESCE($3, 'saved'), $4, $5, $6, $7) RETURNING *",
+            [body.company, body.job_title, body.status, body.description, body.url, body.location, body.applied_date]
+        );
+        res.status(201).json({ status: 'ok', job: result.rows[0] })
+    } catch(err) {
+        res.status(400).json({ status: 'error', message: err.message })
     }
 })
+
+app.post('/echo', (req, res) => {
+    const body = req.body;
+    res.json(body);
+});
 
 app.get('/health', async(req, res) => {
     try {
